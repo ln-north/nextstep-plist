@@ -24,7 +24,7 @@ const escape = string =>
   string.replace(/\\([\\"])/g, (_, character) => escapes[character])
 
 // TODO add support for binary data
-const tokens = /^\s*(?:([,;=(){}])|"((?:\\"|[^"])*)"|(\w+))/
+const tokens = /^\s*(?:([,;=(){}])|"((?:\\"|[^"])*)"|([\w.-]+))/
 
 const stringAction = {
   [go] () {
