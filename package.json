@@ -1,11 +1,11 @@
 {
   "name": "nextstep-plist",
-  "version": "0.4.1",
+  "version": "0.4.3",
   "description": "NeXTSTEP plist parser",
   "main": "index.js",
   "bin": "index.js",
   "repository": "git@github.com:chee/nextstep-plist",
-  "author": "chee <chee@snoot.club>",
+  "author": "chee <yay@chee.party>",
   "contributors": [
     "makepost <makepost@firemail.cc>"
   ],
