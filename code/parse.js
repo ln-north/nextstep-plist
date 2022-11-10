@@ -1,210 +1,210 @@
-const go = 'gogogo'
-const good = 'good'
-const equals = 'equals'
-const dictSeparator = 'dictSeparator'
-const arraySeparator = 'arraySeparator'
-const firstDictKey = 'firstDictKey'
-const dictKey = 'dictKey'
-const dictValue = 'dictValue'
-const firstArrayValue = 'firstArrayValue'
-const arrayValue = 'arrayValue'
+const go = "gogogo";
+const good = "good";
+const equals = "equals";
+const dictSeparator = "dictSeparator";
+const arraySeparator = "arraySeparator";
+const firstDictKey = "firstDictKey";
+const dictKey = "dictKey";
+const dictValue = "dictValue";
+const firstArrayValue = "firstArrayValue";
+const arrayValue = "arrayValue";
 
-let state
-let stack
-let container
-let key
-let value
+let state;
+let stack;
+let container;
+let key;
+let value;
 
 const escapes = {
-  '\\': '\\',
-  '"': '"'
-}
+  "\\": "\\",
+  '"': '"',
+};
 
-const escape = string =>
-  string.replace(/\\([\\"])/g, (_, character) => escapes[character])
+const escape = (string) =>
+  string.replace(/\\([\\"])/g, (_, character) => escapes[character]);
 
 // TODO add support for binary data
-const tokens = /^\s*(?:([,;=(){}])|"((?:\\"|[^"])*)"|([\w.-]+))/
+const tokens = /^\s*(?:([,;=(){}])|"((?:\\"|[^"])*)"|([a-zA-Z0-9_$\/:.-]+))/;
 
 const stringAction = {
-  [go] () {
-    state = good
+  [go]() {
+    state = good;
   },
-  [firstDictKey] () {
-    key = value
-    state = equals
+  [firstDictKey]() {
+    key = value;
+    state = equals;
   },
-  [dictKey] () {
-    key = value
-    state = equals
+  [dictKey]() {
+    key = value;
+    state = equals;
   },
-  [dictValue] () {
-    state = dictSeparator
+  [dictValue]() {
+    state = dictSeparator;
   },
-  [firstArrayValue] () {
-    state = arraySeparator
+  [firstArrayValue]() {
+    state = arraySeparator;
   },
-  [arrayValue] () {
-    state = arraySeparator
-  }
-}
+  [arrayValue]() {
+    state = arraySeparator;
+  },
+};
 
 const action = {
-  '{': {
-    [go] () {
-      stack.push({state: good})
-      container = {}
-      state = firstDictKey
+  "{": {
+    [go]() {
+      stack.push({ state: good });
+      container = {};
+      state = firstDictKey;
     },
-    [dictValue] () {
+    [dictValue]() {
       stack.push({
         container,
         key,
-        state: dictSeparator
-      })
-      container = {}
-      state = firstDictKey
+        state: dictSeparator,
+      });
+      container = {};
+      state = firstDictKey;
     },
-    [firstArrayValue] () {
+    [firstArrayValue]() {
       stack.push({
         container,
-        state: arraySeparator
-      })
-      container = {}
-      state = firstDictKey
+        state: arraySeparator,
+      });
+      container = {};
+      state = firstDictKey;
     },
-    [arrayValue] () {
+    [arrayValue]() {
       stack.push({
         container,
-        state: arraySeparator
-      })
-      container = {}
-      state = firstDictKey
-    }
+        state: arraySeparator,
+      });
+      container = {};
+      state = firstDictKey;
+    },
   },
-  '}': {
-    [firstDictKey] () {
-      const last = stack.pop()
-      value = container
-      container = last.container
-      key = last.key
-      state = last.state
+  "}": {
+    [firstDictKey]() {
+      const last = stack.pop();
+      value = container;
+      container = last.container;
+      key = last.key;
+      state = last.state;
     },
-    [dictSeparator] () {
-      const last = stack.pop()
-      container[key] = value
-      value = container
-      container = last.container
-      key = last.key
-      state = last.state
+    [dictSeparator]() {
+      const last = stack.pop();
+      container[key] = value;
+      value = container;
+      container = last.container;
+      key = last.key;
+      state = last.state;
     },
     // trailing ; in dictionary definitions
-    [dictKey] () {
-      const last = stack.pop()
-      value = container
-      container = last.container
-      key = last.key
-      state = last.state
-    }
-  },
-  '(': {
-    [go] () {
-      stack.push({state: good})
-      container = []
-      state = firstArrayValue
+    [dictKey]() {
+      const last = stack.pop();
+      value = container;
+      container = last.container;
+      key = last.key;
+      state = last.state;
     },
-    [dictValue] () {
+  },
+  "(": {
+    [go]() {
+      stack.push({ state: good });
+      container = [];
+      state = firstArrayValue;
+    },
+    [dictValue]() {
       stack.push({
         container,
         key,
-        state: dictSeparator
-      })
-      container = []
-      state = firstArrayValue
+        state: dictSeparator,
+      });
+      container = [];
+      state = firstArrayValue;
     },
-    [firstArrayValue] () {
+    [firstArrayValue]() {
       stack.push({
         container,
-        state: arraySeparator
-      })
-      container = []
-      state = firstArrayValue
+        state: arraySeparator,
+      });
+      container = [];
+      state = firstArrayValue;
     },
-    [arrayValue] () {
+    [arrayValue]() {
       stack.push({
         container,
-        state: arraySeparator
-      })
-      container = []
-      state = firstArrayValue
-    }
-  },
-  ')': {
-    [firstArrayValue] () {
-      const last = stack.pop()
-      value = container
-      container = last.container
-      key = last.key
-      state = last.state
+        state: arraySeparator,
+      });
+      container = [];
+      state = firstArrayValue;
     },
-    [arraySeparator] () {
-      const last = stack.pop()
-      container.push(value)
-      value = container
-      container = last.container
-      key = last.key
-      state = last.state
-    }
   },
-  '=': {
-    [equals] () {
+  ")": {
+    [firstArrayValue]() {
+      const last = stack.pop();
+      value = container;
+      container = last.container;
+      key = last.key;
+      state = last.state;
+    },
+    [arraySeparator]() {
+      const last = stack.pop();
+      container.push(value);
+      value = container;
+      container = last.container;
+      key = last.key;
+      state = last.state;
+    },
+  },
+  "=": {
+    [equals]() {
       // TODO perhaps throw on duplicate key
-      state = dictValue
-    }
+      state = dictValue;
+    },
   },
-  ';': {
-    [dictSeparator] () {
-      container[key] = value
-      state = dictKey
-    }
+  ";": {
+    [dictSeparator]() {
+      container[key] = value;
+      state = dictKey;
+    },
   },
-  ',': {
-    [arraySeparator] () {
-      container.push(value)
-      state = arrayValue
-    }
-  }
-}
+  ",": {
+    [arraySeparator]() {
+      container.push(value);
+      state = arrayValue;
+    },
+  },
+};
 
-module.exports = function parse (plist) {
-  state = go
-  stack = []
-  container = key = value = null
-  const invalid = new SyntaxError('excuse me, that is not valid')
+module.exports = function parse(plist) {
+  state = go;
+  stack = [];
+  container = key = value = null;
+  const invalid = new SyntaxError("excuse me, that is not valid");
   try {
     while (true) {
-      let result
-      result = tokens.exec(plist)
+      let result;
+      result = tokens.exec(plist);
       if (!result) {
-        break
+        break;
       }
-      const [capture, token, string, noQuoteString] = result
+      const [capture, token, string, noQuoteString] = result;
       if (token) {
-        action[token][state]()
+        action[token][state]();
       } else if (string !== undefined) {
-        value = escape(string)
-        stringAction[state]()
+        value = escape(string);
+        stringAction[state]();
       } else {
-        value = escape(noQuoteString)
-        stringAction[state]()
+        value = escape(noQuoteString);
+        stringAction[state]();
       }
-      plist = plist.slice(capture.length)
+      plist = plist.slice(capture.length);
     }
   } catch (error) {
-    throw invalid
+    throw invalid;
   }
 
-  if (state !== good) throw invalid
+  if (state !== good) throw invalid;
 
-  return value
-}
+  return value;
+};
